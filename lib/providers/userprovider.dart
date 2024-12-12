@@ -6,37 +6,43 @@ import '../models/usermodel.dart';
 
 class UserProvider with ChangeNotifier {
   // ignore: prefer_final_fields
-    Usermodel _currentUser=Usermodel(
-    name: 'Hank',
-    photo: 'https://via.placeholder.com/150',
-    status: 'busy',
-    notifications: 0,
-    phoneNumber: '01 77 66 55 44',
-    city: 'Strasbourg',
-    country: 'France',
-    birthday: '25/12/1987',
-    messages: [
-      Messagemodel(sender: 'Me', content: 'remember to buy some vegetable', isMine: true),
-      Messagemodel(sender: 'me', content: 'there\'s a birthday this sunday ', isMine: true),
-    ],
-    posts: [
-      Postmodel(
-        image: 'https://via.placeholder.com/100',
-        text: 'Busy day, but making good progress!',
-        like: 12,
-        partage: 2,
-        commentaires: ['Keep it up!', 'Great work!'],
-      ),
-      Postmodel(
-        image: 'https://via.placeholder.com/100',
-        text: 'Relaxing with some good music after a hectic day.',
-        like: 8,
-        partage: 1,
-        commentaires: ['Sounds nice!', 'What are you listening to?'],
-      ),
-    ],
-  );
-  final List<Usermodel> _users = [
+  Usermodel _currentUser = Usermodel(
+  name: 'Hank',
+  photo: 'https://via.placeholder.com/150',
+  status: 'busy',
+  notifications: 0,
+  phoneNumber: '01 77 66 55 44',
+  city: 'Strasbourg',
+  country: 'France',
+  birthday: '25/12/1987',
+  messages: [
+    Messagemodel(sender: 'Me', content: 'remember to buy some vegetable', isMine: true),
+    Messagemodel(sender: 'me', content: 'there\'s a birthday this sunday ', isMine: true),
+  ],
+  posts: [
+    Postmodel(
+      image: 'https://via.placeholder.com/100',
+      text: 'Busy day, but making good progress!',
+      city: 'Strasbourg',
+      temperature: 5,
+      weather: 'Cloudy',
+      like: 12,
+      partage: 2,
+      commentaires: ['Keep it up!', 'Great work!'],
+    ),
+    Postmodel(
+      image: 'https://via.placeholder.com/100',
+      text: 'Relaxing with some good music after a hectic day.',
+      city: 'Strasbourg',
+      temperature: 15,
+      weather: 'Clear sky',
+      like: 8,
+      partage: 1,
+      commentaires: ['Sounds nice!', 'What are you listening to?'],
+    ),
+  ],
+);
+final List<Usermodel> _users = [
   Usermodel(
     name: 'Alice',
     photo: 'https://via.placeholder.com/150',
@@ -55,6 +61,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Had an amazing day in Paris with friends!',
+        city: 'Paris',
+        temperature: 18,
+        weather: 'Sunny',
         like: 15,
         partage: 3,
         commentaires: ['Looks fun!', 'Wish I was there!'],
@@ -62,6 +71,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Just got back from a great trip to the mountains!',
+        city: 'Paris',
+        temperature: 10,
+        weather: 'Partly cloudy',
         like: 20,
         partage: 5,
         commentaires: ['Stunning views!', 'Tell me more about it!'],
@@ -86,6 +98,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Just finished an intense workout session!',
+        city: 'Lyon',
+        temperature: 22,
+        weather: 'Clear',
         like: 12,
         partage: 2,
         commentaires: ['Great job!', 'Keep it up!'],
@@ -93,6 +108,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Enjoying a nice cup of coffee this morning!',
+        city: 'Lyon',
+        temperature: 8,
+        weather: 'Cloudy',
         like: 8,
         partage: 1,
         commentaires: ['Sounds relaxing!', 'What kind of coffee?'],
@@ -116,6 +134,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Great day at the beach with friends!',
+        city: 'Marseille',
+        temperature: 28,
+        weather: 'Sunny',
         like: 30,
         partage: 7,
         commentaires: ['Looks amazing!', 'I want to go there next time!'],
@@ -123,6 +144,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Enjoying a quiet night with a good book.',
+        city: 'Marseille',
+        temperature: 18,
+        weather: 'Clear sky',
         like: 10,
         partage: 2,
         commentaires: ['Nice choice!', 'What book are you reading?'],
@@ -147,6 +171,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Enjoying the sunny weather in Nice today!',
+        city: 'Nice',
+        temperature: 25,
+        weather: 'Sunny',
         like: 25,
         partage: 4,
         commentaires: ['I love the sun!', 'What a beautiful place!'],
@@ -154,6 +181,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Just finished a hike in the mountains, amazing views!',
+        city: 'Nice',
+        temperature: 18,
+        weather: 'Clear',
         like: 18,
         partage: 3,
         commentaires: ['Wow, looks beautiful!', 'You\'re so adventurous!'],
@@ -177,6 +207,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Busy day at work, but feeling productive!',
+        city: 'Bordeaux',
+        temperature: 12,
+        weather: 'Cloudy',
         like: 14,
         partage: 3,
         commentaires: ['Keep it up!', 'You got this!'],
@@ -184,6 +217,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Loving this new coffee blend I tried!',
+        city: 'Bordeaux',
+        temperature: 10,
+        weather: 'Clear',
         like: 10,
         partage: 2,
         commentaires: ['What flavor is it?', 'Sounds delicious!'],
@@ -207,6 +243,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'It\'s been a long week, but I\'m happy it\'s over!',
+        city: 'Lille',
+        temperature: 5,
+        weather: 'Cloudy',
         like: 8,
         partage: 1,
         commentaires: ['You deserve some rest!', 'Enjoy your weekend!'],
@@ -214,6 +253,9 @@ class UserProvider with ChangeNotifier {
       Postmodel(
         image: 'https://via.placeholder.com/100',
         text: 'Spent the day with family, great times!',
+        city: 'Lille',
+        temperature: 16,
+        weather: 'Sunny',
         like: 15,
         partage: 3,
         commentaires: ['Family time is the best!', 'Glad you had fun!'],
@@ -236,17 +278,59 @@ class UserProvider with ChangeNotifier {
     posts: [
       Postmodel(
         image: 'https://via.placeholder.com/100',
-        text: 'Just got back from a road trip with friends!',
-        like: 22,
-        partage: 5,
-        commentaires: ['That looks so fun!', 'What was the best part?'],
+        text: 'Just got back from a wonderful day trip to the countryside.',
+        city: 'Toulouse',
+        temperature: 20,
+        weather: 'Partly cloudy',
+        like: 18,
+        partage: 4,
+        commentaires: ['Such a nice escape!', 'I want to visit too!'],
       ),
       Postmodel(
         image: 'https://via.placeholder.com/100',
-        text: 'Starting a new project today, feeling excited!',
-        like: 18,
-        partage: 4,
-        commentaires: ['You\'re going to do great!', 'Good luck!'],
+        text: 'Feeling good after a workout, ready to tackle the day!',
+        city: 'Toulouse',
+        temperature: 22,
+        weather: 'Sunny',
+        like: 12,
+        partage: 2,
+        commentaires: ['Keep it up!', 'You\'re killing it!'],
+      ),
+    ],
+  ),
+  Usermodel(
+    name: 'Hank',
+    photo: 'https://via.placeholder.com/150',
+    status: 'busy',
+    notifications: 0,
+    phoneNumber: '01 77 66 55 44',
+    city: 'Strasbourg',
+    country: 'France',
+    birthday: '25/12/1987',
+    messages: [
+      Messagemodel(sender: 'Me', content: 'remember to buy some vegetable', isMine: true),
+      Messagemodel(sender: 'me', content: 'there\'s a birthday this sunday ', isMine: true),
+    ],
+    posts: [
+      Postmodel(
+        image: 'https://via.placeholder.com/100',
+        text: 'Busy day, but making good progress!',
+        city: 'Strasbourg',
+        temperature: 5,
+        weather: 'Cloudy',
+        like: 12,
+        partage: 2,
+        commentaires: ['Keep it up!', 'Great work!'],
+      ),
+      Postmodel(
+        image: 'https://via.placeholder.com/100',
+        text: 'Relaxing with some good music after a hectic day.',
+        city: 'Strasbourg',
+        temperature: 15,
+        weather: 'Clear sky',
+        like: 8,
+        partage: 1,
+        commentaires: ['Sounds nice!', 'What are you listening to?'],
       ),
     ],
   ),

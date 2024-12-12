@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:tp1/models/postmodel.dart';
 import '../models/usermodel.dart';
 import '../providers/userprovider.dart'; // Importer UserProvider
+import '../services/weather_service.dart'; // Importer le service météo
+import '../services/location_service.dart'; // Importer le service de localisation
 
 class Profil extends StatelessWidget {
   final Usermodel user; // L'utilisateur passé en paramètre
@@ -55,7 +57,7 @@ class Profil extends StatelessWidget {
               if (isCurrentUser) // Si c'est l'utilisateur actuel, afficher le bouton pour ajouter un post
                 ElevatedButton(
                   onPressed: () {
-                    // Logique pour ajouter un post (exemple)
+                    // Logique pour ajouter un post
                     _showAddPostDialog(context, userProvider);
                   },
                   child: Text('Ajouter un Post'),
@@ -70,6 +72,9 @@ class Profil extends StatelessWidget {
                       text: post.text,
                       like: post.like,
                       partage: post.partage,
+                      city: post.city,
+                      temperature: post.temperature,
+                      weather: post.weather,
                       commentaires: post.commentaires,
                     );
                   },
@@ -137,10 +142,12 @@ class Profil extends StatelessWidget {
     );
   }
 
-  // Dialog pour ajouter un post
+  // Dialog pour ajouter un post avec météo
   void _showAddPostDialog(BuildContext context, UserProvider userProvider) {
     TextEditingController postTextController = TextEditingController();
     TextEditingController postImageController = TextEditingController();
+    final LocationService locationService = LocationService();
+    final WeatherService weatherService = WeatherService();
 
     showDialog(
       context: context,
@@ -162,20 +169,40 @@ class Profil extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                // Créer un nouveau post et l'ajouter à la liste des posts de l'utilisateur
-                final newPost = Postmodel(
-                  image: postImageController.text,
-                  text: postTextController.text,
-                  like: 0,
-                  partage: 0,
-                  commentaires: [],
-                );
+              onPressed: () async {
+                try {
+                  // Obtenir la position actuelle
+                  final position = await locationService.getCurrentLocation();
+                  print(position.latitude.toString()+' '+position.longitude.toString()+' '+position.altitude.toString());
+                  // Obtenir la ville à partir des coordonnées
+                  final city = await locationService.getCityFromCoordinates(position);
+                  print(city);
+                  // Obtenir les données météo pour cette ville
+                  final weatherData = await weatherService.fetchWeatherData(city);
+                  print(weatherData['main']['temp']);
+                  // Extraire les informations météo
+                  final temperature = (weatherData['main']['temp'] - 273.15).round();
+                  final weather = weatherData['weather'][0]['main'];
 
-                userProvider.addPost(userProvider.currentUser, newPost);
+                  // Créer un nouveau post
+                  final newPost = Postmodel(
+                    image: postImageController.text,
+                    text: postTextController.text,
+                    city: city,
+                    temperature: temperature,
+                    weather: weather,
+                  );
 
-                // Fermer le dialog
-                Navigator.pop(context);
+                  // Ajouter le post
+                  userProvider.addPost(userProvider.currentUser, newPost);
+
+                  // Fermer le dialog
+                  Navigator.pop(context);
+                } catch (e) {
+                  // Gérer les erreurs
+                  print('Erreur: $e');
+                  Navigator.pop(context);
+                }
               },
               child: Text('Ajouter'),
             ),
