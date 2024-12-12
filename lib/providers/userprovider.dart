@@ -366,7 +366,7 @@ final List<Usermodel> _users = [
   // Partager un post
   void sharePost(Usermodel user, Postmodel post) {
     post.partage++;
-    user.posts.add(post);
+    user.posts.add(Postmodel(image: post.image, text: post.text, city: post.city, temperature: post.temperature, weather: post.weather));
     notifyListeners();
   }
 

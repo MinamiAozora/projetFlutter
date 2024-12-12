@@ -1,26 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tp1/models/postmodel.dart';
+import 'package:tp1/providers/userprovider.dart';
 import 'interactions/commentaire.dart';
 
 // ignore: must_be_immutable
 class Post extends StatefulWidget {
-  final String image;
-  final String text;
-  int like;
-  int partage;
-  final String city;
-  final int temperature;
-  final String weather;
-  List<String> commentaires;
+  final Postmodel postmodel;
+
 
   Post({
-    required this.image,
-    required this.text,
-    required this.like,
-    required this.partage,
-    required this.commentaires, 
-    required this.city, 
-    required this.temperature, 
-    required this.weather,
+    required this.postmodel,
   });
 
   @override
@@ -28,21 +18,23 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
+  late Postmodel _postmodel;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialiser les variables d'état avec les valeurs du widget
+    _postmodel = widget.postmodel;
+  }
   void incrementLike() {
     setState(() {
-      widget.like++;
-    });
-  }
-
-  void incrementPartage() {
-    setState(() {
-      widget.partage++;
+      _postmodel.like++;
     });
   }
 
   void addComment(String comment) {
     setState(() {
-      widget.commentaires.add(comment);
+      _postmodel.commentaires.add(comment);
     });
   }
 
@@ -65,7 +57,7 @@ Widget build(BuildContext context) {
             height: 150,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: NetworkImage(widget.image),
+                image: NetworkImage(_postmodel.image),
                 fit: BoxFit.cover,
               ),
               borderRadius: BorderRadius.circular(8),
@@ -77,19 +69,19 @@ Widget build(BuildContext context) {
             children: [
               Icon(Icons.location_on, color: Colors.red, size: 20),
               Text(
-                '${widget.city}',
+                '${_postmodel.city}',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               SizedBox(width: 10),
               Icon(Icons.thermostat_outlined, color: Colors.orange, size: 20),
               Text(
-                '${widget.temperature}°C',
+                '${_postmodel.temperature}°C',
                 style: TextStyle(fontSize: 14),
               ),
               SizedBox(width: 10),
               Icon(Icons.wb_sunny_outlined, color: Colors.yellow, size: 20),
               Text(
-                '${widget.weather}',
+                '${_postmodel.weather}',
                 style: TextStyle(fontSize: 14),
               ),
             ],
@@ -97,7 +89,7 @@ Widget build(BuildContext context) {
           SizedBox(height: 10),
           // Texte du post
           Text(
-            widget.text,
+            _postmodel.text,
             style: TextStyle(fontSize: 16),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
@@ -114,7 +106,7 @@ Widget build(BuildContext context) {
                     icon: Icon(Icons.thumb_up_alt_outlined, color: Colors.blue),
                     onPressed: incrementLike,
                   ),
-                  Text('${widget.like}'), // Compteur de likes
+                  Text('${_postmodel.like}'), // Compteur de likes
                 ],
               ),
               // Bouton Commentaire avec compteur
@@ -127,14 +119,14 @@ Widget build(BuildContext context) {
                         context,
                         MaterialPageRoute(
                           builder: (context) => Commentaire(
-                            commentaires: widget.commentaires,
+                            commentaires: _postmodel.commentaires,
                             addComment: addComment,
                           ),
                         ),
                       );
                     },
                   ),
-                  Text('${widget.commentaires.length}'), // Compteur de commentaires
+                  Text('${_postmodel.commentaires.length}'), // Compteur de commentaires
                 ],
               ),
               // Bouton Partage avec compteur
@@ -142,11 +134,19 @@ Widget build(BuildContext context) {
                 children: [
                   IconButton(
                     icon: Icon(Icons.share_outlined, color: Colors.blue),
-                    onPressed: incrementPartage,
+                    onPressed: () {
+                      // Appel au Provider
+                      final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+                      userProvider.sharePost(userProvider.currentUser,_postmodel);
+
+                      // Met à jour le compteur local pour afficher immédiatement le changement
+                    },
                   ),
-                  Text('${widget.partage}'), // Compteur de partages
+                  Text('${_postmodel.partage}'), // Compteur de partages
                 ],
               ),
+
             ],
           ),
         ],

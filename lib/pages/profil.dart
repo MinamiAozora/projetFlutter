@@ -67,15 +67,7 @@ class Profil extends StatelessWidget {
                   itemCount: user.posts.length,
                   itemBuilder: (context, index) {
                     final post = user.posts[index];
-                    return Post(
-                      image: post.image,
-                      text: post.text,
-                      like: post.like,
-                      partage: post.partage,
-                      city: post.city,
-                      temperature: post.temperature,
-                      weather: post.weather,
-                      commentaires: post.commentaires,
+                    return Post(postmodel: post,
                     );
                   },
                 ),
@@ -173,13 +165,10 @@ class Profil extends StatelessWidget {
                 try {
                   // Obtenir la position actuelle
                   final position = await locationService.getCurrentLocation();
-                  print(position.latitude.toString()+' '+position.longitude.toString()+' '+position.altitude.toString());
                   // Obtenir la ville à partir des coordonnées
                   final city = await locationService.getCityFromCoordinates(position);
-                  print(city);
                   // Obtenir les données météo pour cette ville
                   final weatherData = await weatherService.fetchWeatherData(city);
-                  print(weatherData['main']['temp']);
                   // Extraire les informations météo
                   final temperature = (weatherData['main']['temp'] - 273.15).round();
                   final weather = weatherData['weather'][0]['main'];

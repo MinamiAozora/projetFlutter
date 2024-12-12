@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/messagemodel.dart';
 import '../models/usermodel.dart';
 import 'profil.dart';
+
 class Chat extends StatefulWidget {
   final Usermodel user; // L'utilisateur passé en paramètre
 
@@ -12,13 +13,21 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
+  late Usermodel _user; // Variable pour stocker l'utilisateur
   final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialiser _user avec les données de widget.user
+    _user = widget.user;
+  }
 
   // Fonction pour envoyer un message
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
       setState(() {
-        widget.user.messages.add(Messagemodel(
+        _user.messages.add(Messagemodel(
           sender: 'Me',
           content: _controller.text,
           isMine: true,
@@ -32,7 +41,7 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat avec ${widget.user.name}'),
+        title: Text('Chat avec ${_user.name}'),
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle),
@@ -41,7 +50,7 @@ class _ChatState extends State<Chat> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Profil(user: widget.user),
+                  builder: (context) => Profil(user: _user),
                 ),
               );
             },
@@ -51,15 +60,15 @@ class _ChatState extends State<Chat> {
       body: Column(
         children: [
           CircleAvatar(
-            backgroundImage: NetworkImage(widget.user.photo),
+            backgroundImage: NetworkImage(_user.photo),
             radius: 40,
           ),
           SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
-              itemCount: widget.user.messages.length,
+              itemCount: _user.messages.length,
               itemBuilder: (context, index) {
-                final message = widget.user.messages[index];
+                final message = _user.messages[index];
                 bool isMine = message.isMine;
 
                 return Align(
