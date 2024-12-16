@@ -32,7 +32,9 @@ class LocationService {
       List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
       Placemark placemark = placemarks[0];  // Get the first result
       return placemark.locality ?? 'Unknown City';  // Return the city name
-    } catch (e) {
+    }    
+    catch (e) {
+    // Afficher le type de l'exception et les détails de la stack trace
       return 'Error retrieving city name';
     }
   }
