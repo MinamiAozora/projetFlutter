@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "459519364638",
+    "project_id": "minamisora-3il-flutter-project",
+    "storage_bucket": "minamisora-3il-flutter-project.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:459519364638:android:48366c28e71eeee5d1680f",
+        "android_client_info": {
+          "package_name": "com.groupe3il.min"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXXmXqWR3qhDsT7zt4WEM26GtxoOHXzWI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

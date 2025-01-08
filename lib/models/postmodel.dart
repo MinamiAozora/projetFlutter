@@ -6,8 +6,6 @@ class Postmodel {
   final String city;
   final int temperature;
   final String weather;
-  List<String> commentaires;
-
   Postmodel({
     required this.image,
     required this.text,
@@ -16,6 +14,5 @@ class Postmodel {
     required this.weather,
     this.like = 0,
     this.partage = 0,
-    this.commentaires = const [],
   });
 }

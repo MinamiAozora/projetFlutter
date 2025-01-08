@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Assurez-vous d'importer Provider
+import 'package:tp1/pages/conversation.dart';
+import 'package:tp1/pages/friend.dart';
 import 'package:tp1/pages/profil.dart'; // Assurez-vous d'importer votre page de profil
 import 'package:tp1/providers/userprovider.dart';
 
@@ -14,36 +16,39 @@ class Navbar extends StatelessWidget {
     return BottomNavigationBar(
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Accueil',
+          icon: Icon(Icons.chat),
+          label: 'Conversations',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.group),
+          label: 'Amis',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: 'Profil',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
-          label: 'Paramètres',
         ),
       ],
       onTap: (index) {
         // Action à effectuer lorsqu'on clique sur un bouton
         switch (index) {
           case 0:
-            print('Accueil sélectionné');
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Conversation()),
+            );
             break;
           case 1:
-            // Vérifier si currentUser est nul avant de naviguer
-            
-              // Naviguer vers la page de profil avec les informations de currentUser
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Profil(user:currentUser)),
-              );
-            
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Friend()),
+            );
             break;
           case 2:
-            print('Paramètres sélectionnés');
+            // Naviguer vers la page de profil avec les informations de currentUser
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Profil(user: currentUser)),
+            );
             break;
         }
       },

@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:tp1/components/post.dart';
 import 'package:provider/provider.dart';
+import 'package:tp1/components/post.dart';
 import 'package:tp1/models/postmodel.dart';
 import '../models/usermodel.dart';
 import '../providers/userprovider.dart'; // Importer UserProvider
@@ -63,11 +64,28 @@ class Profil extends StatelessWidget {
                   child: Text('Ajouter un Post'),
                 ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: user.posts.length,
-                  itemBuilder: (context, index) {
-                    final post = user.posts[index];
-                    return Post(postmodel: post,
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('posts')
+                      .where('idUser', isEqualTo: user.id) // Filtrer par idUser
+                      .orderBy('timestamp', descending: true) // Tri des posts par timestamp (les plus récents en premier)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+
+                    final posts = snapshot.data!.docs;
+                    List<Widget> postWidgets = [];
+
+                    for (var post in posts) {
+                      final idPost = post.id; // Nous récupérons uniquement l'ID du post
+
+                      postWidgets.add(Post(idPost: idPost)); // Passer l'ID à la classe Post
+                    }
+
+                    return ListView(
+                      children: postWidgets,
                     );
                   },
                 ),
@@ -81,58 +99,97 @@ class Profil extends StatelessWidget {
 
   // Dialog pour éditer les informations de profil
   void _showEditProfileDialog(BuildContext context, Usermodel user) {
-    // Afficher un dialog pour éditer les informations de profil (exemple)
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        TextEditingController nameController = TextEditingController(text: user.name);
-        TextEditingController cityController = TextEditingController(text: user.city);
-        TextEditingController phoneController = TextEditingController(text: user.phoneNumber);
+  // Initialisation des contrôleurs avec les données actuelles de l'utilisateur
+  TextEditingController nameController = TextEditingController(text: user.name);
+  TextEditingController cityController = TextEditingController(text: user.city);
+  TextEditingController countryController = TextEditingController(text: user.country);
+  TextEditingController phoneController = TextEditingController(text: user.phoneNumber);
+  TextEditingController birthdayController = TextEditingController(text: user.birthday);
+  TextEditingController photoController = TextEditingController(text: user.photo); // Ajouter le champ photo
 
-        return AlertDialog(
-          title: Text('Modifier Profil'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: 'Nom'),
-              ),
-              TextField(
-                controller: cityController,
-                decoration: InputDecoration(labelText: 'Ville'),
-              ),
-              TextField(
-                controller: phoneController,
-                decoration: InputDecoration(labelText: 'Numéro de téléphone'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Appliquer les modifications
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Modifier Profil'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: 'Nom'),
+            ),
+            TextField(
+              controller: cityController,
+              decoration: InputDecoration(labelText: 'Ville'),
+            ),
+            TextField(
+              controller: countryController,
+              decoration: InputDecoration(labelText: 'Pays'),
+            ),
+            TextField(
+              controller: phoneController,
+              decoration: InputDecoration(labelText: 'Numéro de téléphone'),
+            ),
+            TextField(
+              controller: birthdayController,
+              decoration: InputDecoration(labelText: 'Date de naissance'),
+            ),
+            TextField(
+              controller: photoController,
+              decoration: InputDecoration(labelText: 'URL de la photo'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              // Mise à jour des informations dans Firebase
+              try {
+                // Mise à jour dans Firebase
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user.id) // Utilisez l'ID de l'utilisateur pour cibler le document
+                    .update({
+                      'name': nameController.text,
+                      'city': cityController.text,
+                      'country': countryController.text,
+                      'phoneNumber': phoneController.text,
+                      'birthday': birthdayController.text,
+                      'photo': photoController.text, // Mise à jour du champ photo
+                    });
+
+                // Appliquer les modifications localement
                 user.name = nameController.text;
                 user.city = cityController.text;
+                user.country = countryController.text;
                 user.phoneNumber = phoneController.text;
+                user.birthday = birthdayController.text;
+                user.photo = photoController.text; // Mettre à jour la photo localement
 
                 // Fermer le dialog
                 Navigator.pop(context);
-              },
-              child: Text('Sauvegarder'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Annuler les modifications
+              } catch (e) {
+                // Gérer les erreurs
+                print('Erreur lors de la mise à jour du profil: $e');
                 Navigator.pop(context);
-              },
-              child: Text('Annuler'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+              }
+            },
+            child: Text('Sauvegarder'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Annuler les modifications
+              Navigator.pop(context);
+            },
+            child: Text('Annuler'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   // Dialog pour ajouter un post avec météo
   void _showAddPostDialog(BuildContext context, UserProvider userProvider) {
@@ -182,8 +239,16 @@ class Profil extends StatelessWidget {
                     weather: weather,
                   );
 
-                  // Ajouter le post
-                  userProvider.addPost(userProvider.currentUser, newPost);
+                  // Ajouter le post dans Firebase
+                  FirebaseFirestore.instance.collection('posts').add({
+                    'idUser': userProvider.currentUser.id,
+                    'text': newPost.text,
+                    'image': newPost.image,
+                    'city': newPost.city,
+                    'temperature': newPost.temperature,
+                    'weather': newPost.weather,
+                    'timestamp': FieldValue.serverTimestamp(),
+                  });
 
                   // Fermer le dialog
                   Navigator.pop(context);

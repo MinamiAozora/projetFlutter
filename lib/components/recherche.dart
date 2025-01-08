@@ -23,10 +23,8 @@ class Recherche extends StatelessWidget implements PreferredSizeWidget {
         country: 'somewhere',
         phoneNumber: '00 00 00 00 00',
         birthday: '00/00/0000',
-        posts: [],
         status: 'busy',
-        messages: [],
-        notifications: 0,  // Liste vide de posts pour cet utilisateur
+        id:'0',
       );
 
       // Ajouter cet utilisateur à la liste des utilisateurs dans le Provider
