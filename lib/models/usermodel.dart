@@ -9,13 +9,13 @@ class Usermodel {
   String id;
 
   Usermodel({
-    required this.name,
-    required this.photo,
+    this.name="",
+    this.photo="",
     required this.status,
-    required this.phoneNumber,
-    required this.city,
-    required this.country,
-    required this.birthday,
+    this.phoneNumber="",
+    this.city="",
+    this.country="",
+    this.birthday="",
     required this.id,
   });
 }

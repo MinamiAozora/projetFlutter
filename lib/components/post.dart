@@ -1,7 +1,8 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
-import 'package:tp1/providers/userprovider.dart';
 import 'interactions/commentaire.dart';
 
 // ignore: must_be_immutable
@@ -31,7 +32,7 @@ class _PostState extends State<Post> {
   void _fetchPostData() async {
     try {
       DocumentSnapshot snapshot = await FirebaseFirestore.instance
-          .collection('posts')
+          .collection('Post')
           .doc(widget.idPost)
           .get();
       
@@ -53,7 +54,7 @@ class _PostState extends State<Post> {
   void incrementLike() async {
     try {
       await FirebaseFirestore.instance
-          .collection('posts')
+          .collection('Post')
           .doc(widget.idPost)
           .update({
         'like': FieldValue.increment(1),
@@ -63,25 +64,25 @@ class _PostState extends State<Post> {
     }
   }
 
-  // Fonction pour partager un post (copier l'image et le texte dans les posts de l'utilisateur)
+  // Fonction pour sharer un post (copier l'image et le texte dans les posts de l'utilisateur)
   void sharePost() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final String currentUserUid = FirebaseAuth.instance.currentUser?.uid ?? '';
     try {
-      await FirebaseFirestore.instance.collection('posts').add({
+      await FirebaseFirestore.instance.collection('Post').add({
         'text': _postData['text'],
         'image': _postData['image'],
         'city': _postData['city'],
         'temperature': _postData['temperature'],
         'weather': _postData['weather'],
-        'userId': userProvider.currentUser.id,
+        'userId': currentUserUid,
         'like': 0, // Le post partagé commence avec 0 likes
-        'partage': 0, // Le post partagé commence avec 0 partages
+        'share': 0, // Le post partagé commence avec 0 shares
       });
-      await FirebaseFirestore.instance.collection('posts').doc(widget.idPost).update({
-      'partage': FieldValue.increment(1),
+      await FirebaseFirestore.instance.collection('Post').doc(widget.idPost).update({
+      'share': FieldValue.increment(1),
     });
     } catch (error) {
-      print('Erreur lors du partage du post: $error');
+      print('Erreur lors du share du post: $error');
     }
   }
 
@@ -182,14 +183,14 @@ class _PostState extends State<Post> {
                           Text('${_postData['commentaires']?.length ?? 0}'), // Compteur de commentaires
                         ],
                       ),
-                      // Bouton Partage avec compteur
+                      // Bouton share avec compteur
                       Row(
                         children: [
                           IconButton(
                             icon: Icon(Icons.share_outlined, color: Colors.blue),
                             onPressed: sharePost,
                           ),
-                          Text('${_postData['partage']}'), // Compteur de partages
+                          Text('${_postData['share']}'), // Compteur de shares
                         ],
                       ),
                     ],

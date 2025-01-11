@@ -35,7 +35,7 @@ class LocationService {
     }    
     catch (e) {
     // Afficher le type de l'exception et les détails de la stack trace
-      return 'Error retrieving city name';
+      return 'Limoges';
     }
   }
 }

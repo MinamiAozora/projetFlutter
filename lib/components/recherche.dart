@@ -1,42 +1,104 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/userprovider.dart'; // Importer votre UserProvider
-import '../models/usermodel.dart'; // Importer le modèle User
+import 'package:firebase_auth/firebase_auth.dart'; // Importer Firebase Auth
 
 class Recherche extends StatelessWidget implements PreferredSizeWidget {
   final TextEditingController _searchController = TextEditingController();
 
   // Fonction de recherche
-  void _performSearch(BuildContext context) {
-    String query = _searchController.text;
-    if (query.isEmpty) {
-      // Afficher un message si la recherche est vide
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Veuillez entrer un texte pour rechercher')),
-      );
-    } else {
-      // Créer un nouvel utilisateur avec le nom de recherche
-      final newUser = Usermodel(
-        name: query,
-        photo: 'null',  // Vous pouvez mettre une URL vide ou par défaut
-        city: 'somewhere',  // Si vous avez d'autres propriétés comme la ville, vous pouvez les initialiser à vide
-        country: 'somewhere',
-        phoneNumber: '00 00 00 00 00',
-        birthday: '00/00/0000',
-        status: 'busy',
-        id:'0',
-      );
+  void _performSearch(BuildContext context) async {
+  String query = _searchController.text;
 
-      // Ajouter cet utilisateur à la liste des utilisateurs dans le Provider
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.addUser(newUser);
-
-      // Afficher un message confirmant l'ajout
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Utilisateur "${query}" ajouté')),
-      );
-    }
+  if (query.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Veuillez entrer un texte pour rechercher')),
+    );
+    return;
   }
+
+  try {
+    // Rechercher un utilisateur dans la collection `users`
+    final userSnapshot = await FirebaseFirestore.instance
+        .collection('users') // Nom de la collection
+        .where('id', isEqualTo: query) // Rechercher un utilisateur par ID
+        .get();
+
+    if (userSnapshot.docs.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Aucun utilisateur trouvé avec cet ID')),
+      );
+      return;
+    }
+
+    // Récupérer les informations de l'utilisateur trouvé
+    final foundUser = userSnapshot.docs.first;
+    final String foundUserId = foundUser['id'];
+    final String foundUserName = foundUser['name'] ?? 'Utilisateur inconnu'; // Nom de l'utilisateur trouvé
+    final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final String currentUserName = FirebaseAuth.instance.currentUser?.displayName ?? 'Vous'; // Nom de l'utilisateur actuel
+
+    if (foundUserId == currentUserId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Vous ne pouvez pas vous ajouter en ami')),
+      );
+      return;
+    }
+
+    // Vérifier si l'ami est déjà ajouté
+    final currentUserFriendRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .collection('friends')
+        .doc(foundUserId);
+
+    final friendExists = await currentUserFriendRef.get();
+    if (friendExists.exists) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cet utilisateur est déjà votre ami')),
+      );
+      return;
+    }
+
+    // Créer une conversation privée dans la collection `Conversation`
+    final conversationRef = FirebaseFirestore.instance.collection('Conversation').doc();
+    await conversationRef.set({
+      'participants': [currentUserId, foundUserId], // Liste des participants
+      'titre': 'Conversation entre $currentUserName et $foundUserName', // Titre de la conversation
+      'createdAt': FieldValue.serverTimestamp(), // Timestamp de création
+    });
+
+    final String conversationId = conversationRef.id; // Récupérer l'ID de la conversation créée
+
+    // Ajouter l'ami et la référence à la conversation dans la sous-collection `friends`
+    await currentUserFriendRef.set({
+      'id': foundUserId,
+      'idPrivateMessage': conversationId, // ID de la conversation privée
+      'addedAt': FieldValue.serverTimestamp(),
+    });
+
+    final foundUserFriendRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(foundUserId)
+        .collection('friends')
+        .doc(currentUserId);
+
+    await foundUserFriendRef.set({
+      'id': currentUserId,
+      'idPrivateMessage': conversationId, // ID de la conversation privée
+      'addedAt': FieldValue.serverTimestamp(),
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Utilisateur ajouté en ami et conversation créée')),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Une erreur est survenue : ${e.toString()}')),
+    );
+  }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +114,7 @@ class Recherche extends StatelessWidget implements PreferredSizeWidget {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Rechercher...',
+                      hintText: 'Rechercher un utilisateur...',
                       border: OutlineInputBorder(),
                       contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                     ),
@@ -60,7 +122,7 @@ class Recherche extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 IconButton(
                   icon: Icon(Icons.search),
-                  onPressed: () => _performSearch(context), // Effectuer la recherche et ajouter un utilisateur
+                  onPressed: () => _performSearch(context), // Effectuer la recherche et ajouter un ami
                 ),
               ],
             ),
