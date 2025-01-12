@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'interactions/commentaire.dart';
+import 'interaction/commentaire.dart';
 
 // ignore: must_be_immutable
 class Post extends StatefulWidget {
@@ -74,6 +74,7 @@ class _PostState extends State<Post> {
         'city': _postData['city'],
         'temperature': _postData['temperature'],
         'weather': _postData['weather'],
+        'commentaire': 0,
         'userId': currentUserUid,
         'like': 0, // Le post partagé commence avec 0 likes
         'share': 0, // Le post partagé commence avec 0 shares
@@ -168,19 +169,13 @@ class _PostState extends State<Post> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Commentaire(
-                                    commentaires: _postData['commentaires'],
-                                    addComment: (comment) {
-                                      setState(() {
-                                        _postData['commentaires'].add(comment);
-                                      });
-                                    },
-                                  ),
+                                  builder: (context) => Commentaire(idPost: widget.idPost),
                                 ),
                               );
                             },
+
                           ),
-                          Text('${_postData['commentaires']?.length ?? 0}'), // Compteur de commentaires
+                          Text('${_postData['commentaire']?.length ?? 0}'), // Compteur de commentaires
                         ],
                       ),
                       // Bouton share avec compteur

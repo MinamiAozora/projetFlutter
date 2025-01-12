@@ -245,6 +245,7 @@ class Profil extends StatelessWidget {
                     'city': newPost.city,
                     'temperature': newPost.temperature,
                     'weather': newPost.weather,
+                    'commentaire': 0,
                     'like': 0,
                     'share': 0,
                     'timestamp': FieldValue.serverTimestamp(),

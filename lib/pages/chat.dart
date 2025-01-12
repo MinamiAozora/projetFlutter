@@ -85,7 +85,6 @@ class _ChatState extends State<Chat> {
 
                 final messages = snapshot.data!.docs;
                 List<Widget> messageWidgets = [];
-
                 for (var message in messages) {
                   final messageData = message.data() as Map<String, dynamic>;
                   final String text = messageData['text'];
