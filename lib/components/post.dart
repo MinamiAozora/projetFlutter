@@ -175,7 +175,7 @@ class _PostState extends State<Post> {
                             },
 
                           ),
-                          Text('${_postData['commentaire']?.length ?? 0}'), // Compteur de commentaires
+                          Text('${_postData['commentaires'] ?? 0}'), // Compteur de commentaires
                         ],
                       ),
                       // Bouton share avec compteur
